@@ -143,18 +143,17 @@ class Menu:
         return mode
     
 
-def Saved_MyObject(myobject:object, path:str) -> None:
+def Saved_MyObject(myobject:object , type_ob:Literal['IList', 'Button'], path:str) -> None:
     current_path = os.getcwd()
     path_objects = path
-    type_ob = myobject.type_ob
     name = myobject.name
-    full_name = f"{type_ob}_{name}"
+    name = f"{type_ob}_{name}"
     
     if not os.path.exists(path_objects):
         os.mkdir(path_objects)
     os.chdir(path_objects)
     
-    Op.Saved_Object(myobject, full_name, "")
+    Op.Saved_Object(myobject, name, "")
     os.chdir(current_path)
 
 class ManagerMyObject:
@@ -181,12 +180,12 @@ class ManagerMyObject:
     def Create_MyObject(self):
         print("\n_________________________________________________________")
         print(f"========== CREAR {self.type_ob.upper()}==========")
-        name, keyshort = Util.Consult_Data(f"Nuevo {self.type_ob}")
+        name, keyshort = Util.Consult_Data(f"Nueva {self.type_ob}")
         starting = Util.Consult_Starting(name = name)
 
         my_object = ManagerMyObject._InPrss_Create(self.type_ob, name, keyshort, starting)
 
-        Saved_MyObject(my_object, pathMyOb)
+        Saved_MyObject(my_object, self.type_ob, pathMyOb)
         print('______________________________')
         print(f'Se creo {self.type_ob}: {name}')
         print('______________________________')
@@ -213,23 +212,22 @@ class ManagerMyObject:
         # if self.type_ob == 'ListItem':
         #     ManagerMyObject.Edit_Item(my_object)
 
-        ManagerMyObject._InPrss_Edit(my_object)
+        my_object.Show()
         
-        ManagerMyObject._InPrss_Delete(pathMyOb, my_object = my_object)
-        Saved_MyObject(my_object, pathMyOb)
+        ManagerMyObject._InPrss_Delete(my_object.type_ob, name)
+        Saved_MyObject(my_object, my_object.type_ob, pathMyOb)
 
     def Delete_MyObject(self):
-        type_ob = self.type_ob
         print("\n_________________________________________________________")
-        print(f"===========ELIMINAR {type_ob.upper()}===========")
-        name = ObjectFinder.Select_Object(pathMyOb, type_ob)
-        ManagerMyObject._InPrss_Delete(pathMyOb, name = name, type_ob = type_ob)
+        print(f"===========ELIMINAR {self.type_ob.upper()}===========")
+        name = ObjectFinder.Select_Object(pathMyOb, self.type_ob)
+        ManagerMyObject._InPrss_Delete(self.type_ob, name)
         print('________________________________')
-        print(f'Se eliminó {type_ob}:{name}')
+        print(f'Se eliminó {self.type_ob}:{name}')
         print('________________________________')
 
     @staticmethod
-    def _InPrss_Create(type_ob:str, name:str, keyshort:Union[str, tuple], starting:list, complete = True) -> object:
+    def _InPrss_Create(type_ob:str, name:str, keyshort:Union[str, tuple], starting:list, complete : True) -> object:
         my_object = FinOb.__dict__[type_ob](name, keyshort, starting)
         
         if not complete:
@@ -249,15 +247,8 @@ class ManagerMyObject:
         return my_object
     
     @staticmethod
-    def _InPrss_Delete(path:str, name:str = None, type_ob:str = None, my_object:object = None):
-        if my_object:
-            name = my_object.name
-            type_ob= my_object.type_ob
-
-        elif not name and not type_ob:
-            raise TypeError("No se ingresaron los argumentos requeridos")
-        
-        file_name = f'{path}/{type_ob}_{name}.pkl'
+    def _InPrss_Delete(type_ob:str, name:str):
+        file_name = f'{pathMyOb}/{type_ob}_{name}.pkl'
         os.remove(file_name)
 
     @staticmethod
@@ -298,11 +289,9 @@ class ManagerMyObject:
                 new_object._i_list = i_list
         
         return new_object
-    
     @staticmethod
-    def _InPrss_Edit(my_object:object):
-        my_object.Show (message = 'Valores iniciales')
-        type_ob = my_object.type_ob
+    def Edit_Item(item:FinOb.ListItem):
+        item.Show (message = 'Valores iniciales')
         
         n_name = input('Ingrese el nuevo nombre: ').strip()
         n_keyshort = input('Ingrese el nuevo keyshort: ').strip()
@@ -311,34 +300,11 @@ class ManagerMyObject:
         n_keyshort = FinOb.Starting.FilterKeyshort(n_keyshort)
         n_starting = FinOb.Starting.FilterKeyshort(n_starting, pack = True)
 
-        my_object.name = n_name if n_name else my_object.name
-        my_object.keyshort = n_keyshort if n_keyshort else my_object.keyshort
-        my_object.starting = n_starting if n_starting else my_object.starting[:-1]
-
-        if type_ob == "IList":
-            Items_Keys = my_object.diccionary.keys()
-            
-            while True:
-                my_object.Show_Items()
-                op_edit = input("Desea editar algun item?...").strip()
-                if op_edit not in ('SI', 'S', 'Y', 'YES'):
-                    break#FALTA AGREGAR LA ACTUALIZACION DE ITEMS EN BASE A LA LISTA.
-
-                ob_select = input("Que item deseas editar...").strip()
-
-                if ob_select not in Items_Keys:
-                    Util.Clear_Console(lines = 2)
-                    continue
-                
-                ManagerMyObject._InPrss_Edit(my_object[ob_select])
-
-                c_exit = input("¿Terminamos de editar los items?...").strip()
-                if c_exit.upper() in ('SI', 'S', 'Y', 'YES'):
-                    break
-                os.system('cls')
-                
+        item.name = n_name if n_name else item.name
+        item.keyshort = n_keyshort if n_keyshort else item.keyshort
+        item.starting = n_starting if n_starting else item.starting[:-1]
         
-        my_object.Show (message = "Valores actualizados")
+        item.Show (message = "Valores actualizados")
     
 
 
