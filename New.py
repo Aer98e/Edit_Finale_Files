@@ -143,17 +143,18 @@ class Menu:
         return mode
     
 
-def Saved_MyObject(myobject:object , type_ob:Literal['IList', 'Button'], path:str) -> None:
+def Saved_MyObject(myobject:object, path:str) -> None:
     current_path = os.getcwd()
     path_objects = path
+    type_ob = myobject.type_ob
     name = myobject.name
-    name = f"{type_ob}_{name}"
+    full_name = f"{type_ob}_{name}"
     
     if not os.path.exists(path_objects):
         os.mkdir(path_objects)
     os.chdir(path_objects)
     
-    Op.Saved_Object(myobject, name, "")
+    Op.Saved_Object(myobject, full_name, "")
     os.chdir(current_path)
 
 class ManagerMyObject:
@@ -180,12 +181,12 @@ class ManagerMyObject:
     def Create_MyObject(self):
         print("\n_________________________________________________________")
         print(f"========== CREAR {self.type_ob.upper()}==========")
-        name, keyshort = Util.Consult_Data(f"Nueva {self.type_ob}")
+        name, keyshort = Util.Consult_Data(f"Nuevo {self.type_ob}")
         starting = Util.Consult_Starting(name = name)
 
         my_object = ManagerMyObject._InPrss_Create(self.type_ob, name, keyshort, starting)
 
-        Saved_MyObject(my_object, self.type_ob, pathMyOb)
+        Saved_MyObject(my_object, pathMyOb)
         print('______________________________')
         print(f'Se creo {self.type_ob}: {name}')
         print('______________________________')
@@ -214,20 +215,21 @@ class ManagerMyObject:
 
         my_object.Show()
         
-        ManagerMyObject._InPrss_Delete(my_object.type_ob, name)
-        Saved_MyObject(my_object, my_object.type_ob, pathMyOb)
+        ManagerMyObject._InPrss_Delete(pathMyOb, my_object = my_object)
+        Saved_MyObject(my_object, pathMyOb)
 
     def Delete_MyObject(self):
+        type_ob = self.type_ob
         print("\n_________________________________________________________")
-        print(f"===========ELIMINAR {self.type_ob.upper()}===========")
-        name = ObjectFinder.Select_Object(pathMyOb, self.type_ob)
-        ManagerMyObject._InPrss_Delete(self.type_ob, name)
+        print(f"===========ELIMINAR {type_ob.upper()}===========")
+        name = ObjectFinder.Select_Object(pathMyOb, type_ob)
+        ManagerMyObject._InPrss_Delete(pathMyOb, name = name, type_ob = type_ob)
         print('________________________________')
-        print(f'Se eliminó {self.type_ob}:{name}')
+        print(f'Se eliminó {type_ob}:{name}')
         print('________________________________')
 
     @staticmethod
-    def _InPrss_Create(type_ob:str, name:str, keyshort:Union[str, tuple], starting:list, complete : True) -> object:
+    def _InPrss_Create(type_ob:str, name:str, keyshort:Union[str, tuple], starting:list, complete = True) -> object:
         my_object = FinOb.__dict__[type_ob](name, keyshort, starting)
         
         if not complete:
@@ -247,8 +249,15 @@ class ManagerMyObject:
         return my_object
     
     @staticmethod
-    def _InPrss_Delete(type_ob:str, name:str):
-        file_name = f'{pathMyOb}/{type_ob}_{name}.pkl'
+    def _InPrss_Delete(path:str, name:str = None, type_ob:str = None, my_object:object = None):
+        if my_object:
+            name = my_object.name
+            type_ob= my_object.type_ob
+
+        elif not name and not type_ob:
+            raise TypeError("No se ingresaron los argumentos requeridos")
+        
+        file_name = f'{path}/{type_ob}_{name}.pkl'
         os.remove(file_name)
 
     @staticmethod
