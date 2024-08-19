@@ -305,11 +305,15 @@ class IList(BasicElement, BasicDictionary):
             if control.upper() == 'NO':
                 break
 
+    def Show_Items(self):
+        print(f"====**ITEMS DE {self.name.upper()}**====")
+        for i, (key, value) in enumerate(self.diccionary.items(), 1):
+            print(f"{i}) {key} ({value.type_ob}).")
+        print()
+
     def Show(self, message = ''):
         self.Show_Basic(message=message)
-
-        for item in self._diccionary.values():
-            item.Show()
+        self.Show_Items()
 
 # class C_Window:
 #     def __init__(self, win_name, method_open:Callable[[], None] ,method_close:Literal['saved', 'close']) -> None:
