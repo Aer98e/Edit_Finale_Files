@@ -213,7 +213,7 @@ class ManagerMyObject:
         # if self.type_ob == 'ListItem':
         #     ManagerMyObject.Edit_Item(my_object)
 
-        my_object.Show()
+        ManagerMyObject._InPrss_Edit(my_object)
         
         ManagerMyObject._InPrss_Delete(pathMyOb, my_object = my_object)
         Saved_MyObject(my_object, pathMyOb)
@@ -298,9 +298,11 @@ class ManagerMyObject:
                 new_object._i_list = i_list
         
         return new_object
+    
     @staticmethod
-    def Edit_Item(item:FinOb.ListItem):
-        item.Show (message = 'Valores iniciales')
+    def _InPrss_Edit(my_object:object):
+        my_object.Show (message = 'Valores iniciales')
+        type_ob = my_object.type_ob
         
         n_name = input('Ingrese el nuevo nombre: ').strip()
         n_keyshort = input('Ingrese el nuevo keyshort: ').strip()
@@ -309,11 +311,34 @@ class ManagerMyObject:
         n_keyshort = FinOb.Starting.FilterKeyshort(n_keyshort)
         n_starting = FinOb.Starting.FilterKeyshort(n_starting, pack = True)
 
-        item.name = n_name if n_name else item.name
-        item.keyshort = n_keyshort if n_keyshort else item.keyshort
-        item.starting = n_starting if n_starting else item.starting[:-1]
+        my_object.name = n_name if n_name else my_object.name
+        my_object.keyshort = n_keyshort if n_keyshort else my_object.keyshort
+        my_object.starting = n_starting if n_starting else my_object.starting[:-1]
+
+        if type_ob == "IList":
+            Items_Keys = my_object.diccionary.keys()
+            
+            while True:
+                my_object.Show_Items()
+                op_edit = input("Desea editar algun item?...").strip()
+                if op_edit not in ('SI', 'S', 'Y', 'YES'):
+                    break#FALTA AGREGAR LA ACTUALIZACION DE ITEMS EN BASE A LA LISTA.
+
+                ob_select = input("Que item deseas editar...").strip()
+
+                if ob_select not in Items_Keys:
+                    Util.Clear_Console(lines = 2)
+                    continue
+                
+                ManagerMyObject._InPrss_Edit(my_object[ob_select])
+
+                c_exit = input("¿Terminamos de editar los items?...").strip()
+                if c_exit.upper() in ('SI', 'S', 'Y', 'YES'):
+                    break
+                os.system('cls')
+                
         
-        item.Show (message = "Valores actualizados")
+        my_object.Show (message = "Valores actualizados")
     
 
 
