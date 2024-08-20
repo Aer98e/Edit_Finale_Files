@@ -4,6 +4,10 @@ import time
 import Finale_Objects as FinOb
 import sys
 
+
+Afirmative = ('SI', 'S', 'Y', 'YES', '1')
+Negative = ('NO', 'N', '0')
+
 def Consult_Data(peticion:str = 'Elemento') -> tuple[str, Union[str, tuple]]:
         """Solicita un nombre y un atajo de teclado que los retorna al terminar.
 
@@ -41,6 +45,7 @@ def Consult_Starting(name:str = 'Elemento') -> Optional[list]:
             return None
 
         input("Opcion no valida!, vuelve a intentar.")
+        Clear_Console(lines = 2)
 
 def Clear_Console(lines:int = 1):
 
