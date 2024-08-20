@@ -305,15 +305,17 @@ class ManagerMyObject:
         type_ob = my_object.type_ob
         
         n_name = input('Ingrese el nuevo nombre: ').strip()
-        n_keyshort = input('Ingrese el nuevo keyshort: ').strip()
-        n_starting = input('Ingrese el nuevo starting: ').strip()
-        
-        n_keyshort = FinOb.Starting.FilterKeyshort(n_keyshort)
-        n_starting = FinOb.Starting.FilterKeyshort(n_starting, pack = True)
-
         my_object.name = n_name if n_name else my_object.name
+        
+        n_keyshort = input('Ingrese el nuevo keyshort: ').strip()
+        n_keyshort = FinOb.Starting.FilterKeyshort(n_keyshort)
         my_object.keyshort = n_keyshort if n_keyshort else my_object.keyshort
-        my_object.starting = n_starting if n_starting else my_object.starting[:-1]
+        
+        if type_ob != 'ListItem':
+            n_starting = input('Ingrese el nuevo starting: ').strip()
+            n_starting = FinOb.Starting.FilterKeyshort(n_starting, pack = True)
+            my_object.starting = n_starting if n_starting else my_object.starting[:-1]
+        
 
         if type_ob == "IList":
             Items_Keys = my_object.diccionary.keys()
@@ -321,7 +323,7 @@ class ManagerMyObject:
             while True:
                 my_object.Show_Items()
                 op_edit = input("Desea editar algun item?...").strip()
-                if op_edit not in ('SI', 'S', 'Y', 'YES'):
+                if op_edit.upper() not in Util.Afirmative:
                     break#FALTA AGREGAR LA ACTUALIZACION DE ITEMS EN BASE A LA LISTA.
 
                 ob_select = input("Que item deseas editar...").strip()
@@ -331,9 +333,11 @@ class ManagerMyObject:
                     continue
                 
                 ManagerMyObject._InPrss_Edit(my_object[ob_select])
+                new_name = my_object[ob_select].name
+                my_object[new_name] = my_object.pop(ob_select)
 
                 c_exit = input("¿Terminamos de editar los items?...").strip()
-                if c_exit.upper() in ('SI', 'S', 'Y', 'YES'):
+                if c_exit.upper() in Util.Afirmative:
                     break
                 os.system('cls')
                 
