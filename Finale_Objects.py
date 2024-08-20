@@ -162,10 +162,18 @@ class BasicElement(ABC):
     
     @starting.setter
     def starting(self, new_starting):
-
+        key = False
+        
         if Starting.IsKeyshortList(new_starting):
             self._starting  = [element for element in new_starting]
-            self._Update_Starting(key = False)
+            
+            if self._starting == ['0']:
+                key = True
+            
+            self._Update_Starting(key = key)
+        
+        elif not new_starting:
+            pass
 
         else:
             raise ValueError("La lista new_starting debe contener str o tuplas")
@@ -179,7 +187,7 @@ class BasicElement(ABC):
             print("ACCESO DENEGADO.")
 
     def _Update_Starting(self, key:bool) -> None:
-        if key:
+        if key and len(self._starting) > 0:
             del self._starting[-1]
         Starting.Add_Instruction(self._keyshort, self._starting)
     
