@@ -225,6 +225,10 @@ class BasicDictionary:
     def __contains__(self, key):
         return key in self._diccionary
     
+    def pop(self, name:str):
+        if isinstance(name, str):
+            return self._diccionary.pop(name)
+    
     @property
     def diccionary(self):
         return self._diccionary.copy()
@@ -235,6 +239,7 @@ class BasicDictionary:
             self._diccionary = new_diccionary.copy()
         else:
             raise TypeError('El nuevo diccionario no es de un tipo valido.')
+        
 class ListItem(BasicElement):
     """Clase que representa un item de un IList.
     
@@ -313,7 +318,16 @@ class IList(BasicElement, BasicDictionary):
 
     def Show(self, message = ''):
         self.Show_Basic(message=message)
-        self.Show_Items()
+        if self.diccionary:
+            self.Show_Items()
+
+    def _Update_Starting(self, key: bool) -> None:
+        if key:
+            del self._starting[-1]
+        Starting.Add_Instruction(self._keyshort, self._starting)
+
+        for key in self.diccionary.keys():
+            self.diccionary[key].starting = self.starting
 
 # class C_Window:
 #     def __init__(self, win_name, method_open:Callable[[], None] ,method_close:Literal['saved', 'close']) -> None:
