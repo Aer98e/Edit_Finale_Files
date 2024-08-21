@@ -2,6 +2,7 @@ import Optimization_Correction as Op
 import Finale_Objects as FinOb
 import glob
 import os
+import shutil
 import pickle
 from typing import Union, Literal
 import Utilities as Util
@@ -142,6 +143,8 @@ class Menu:
 
         return mode
     
+def Create_UtilObjects(path_objects):
+    os.mkdir(path_objects)
 
 def Saved_MyObject(myobject:object, path:str) -> None:
     current_path = os.getcwd()
@@ -151,8 +154,9 @@ def Saved_MyObject(myobject:object, path:str) -> None:
     full_name = f"{type_ob}_{name}"
     
     if not os.path.exists(path_objects):
-        os.mkdir(path_objects)
+        Create_UtilObjects(path_objects)
     os.chdir(path_objects)
+
     
     Op.Saved_Object(myobject, full_name, "")
     os.chdir(current_path)
@@ -209,14 +213,18 @@ class ManagerMyObject:
         elif n_update == 'Obsolete':
             input()
             return False
-        
-        # if self.type_ob == 'ListItem':
-        #     ManagerMyObject.Edit_Item(my_object)
 
-        ManagerMyObject._InPrss_Edit(my_object)
-        
+
         ManagerMyObject._InPrss_Delete(pathMyOb, my_object = my_object)
-        Saved_MyObject(my_object, pathMyOb)
+
+        try:
+            ManagerMyObject._InPrss_Edit(my_object)
+            Saved_MyObject(my_object, pathMyOb)
+        except:
+            shutil.copytree(f'{pathMyOb}/Temp', f'{pathMyOb}', dirs_exist_ok = True)
+        
+        shutil.rmtree(f'{pathMyOb}/Temp')
+
 
     def Delete_MyObject(self):
         type_ob = self.type_ob
@@ -249,7 +257,7 @@ class ManagerMyObject:
         return my_object
     
     @staticmethod
-    def _InPrss_Delete(path:str, name:str = None, type_ob:str = None, my_object:object = None):
+    def _InPrss_Delete(path:str, name:str = None, type_ob:str = None, my_object:object = None, segure = True):
         if my_object:
             name = my_object.name
             type_ob= my_object.type_ob
@@ -258,7 +266,14 @@ class ManagerMyObject:
             raise TypeError("No se ingresaron los argumentos requeridos")
         
         file_name = f'{path}/{type_ob}_{name}.pkl'
+
+        if segure:
+            file_destination = f'{path}/Temp'
+            os.mkdir(f'{pathMyOb}/Temp')
+            shutil.copy(file_name, file_destination)
+
         os.remove(file_name)
+
 
     @staticmethod
     def Confirm_Version( my_object):
