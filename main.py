@@ -4,6 +4,7 @@ import Finale_Objects as FinOb
 import time
 import New
 import Utilities as Util
+import os
 
 while(True):
     type_ob = input("Con que objeto trabajaras: ").strip()
@@ -12,16 +13,7 @@ while(True):
     except ValueError as e:
         input(e)
         continue
-    opcion = input("Terminamos?: ").strip()
-    opcion = opcion.upper()
-    if opcion in ('SI', 'S'):
+    opcion = input("Terminamos de trabajar con objetos?: ").strip()
+    if opcion in Util.Afirmative:
         break
-
-
-
-
-
-
-
-
-
+    os.system('cls')
