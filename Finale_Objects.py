@@ -299,6 +299,16 @@ class IList(BasicElement, BasicDictionary):
         BasicDictionary.__init__(self)
         self.Show()
     
+
+    def Add_oneItem(self, element:object):
+        while element.name in self.diccionary.keys():
+                consult = input("Ya existe un elemento con este nombre, desea sobre escribirlo?")
+                if consult in Util.Negative:
+                    new_name = input("Ingrese el nuevo nombre...").strip()
+                    element.name = new_name
+
+        self._diccionary[element.name] = element
+
     def Add_Items(self) -> None:
         """Se encarga de cargar elementos a la lista.
         """
@@ -311,7 +321,7 @@ class IList(BasicElement, BasicDictionary):
 
             if type_item == 'LISTA':
                 name, keyshort = Util.Consult_Data(peticion = "Lista")
-                element = IList(name, keyshort, self._starting)
+                element = IList(name, keyshort, self.starting)
                 element.Add_Items()
             
             elif type_item == 'ITEM':
@@ -321,8 +331,8 @@ class IList(BasicElement, BasicDictionary):
             else:
                 print('Opcion no valida.')
                 continue
-
-            self._diccionary[name] = element
+            
+            self.Add_oneItem(element)
             
             control = input(f'\tDesea agregar item más a {self._name}...')
             if control.upper() == 'NO':

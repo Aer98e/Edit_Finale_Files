@@ -352,8 +352,7 @@ class ManagerMyObject:
                     
                     else:
                         ManagerMyObject._InPrss_Edit(my_object[ob_select])
-                        new_name = my_object[ob_select].name
-                        my_object[new_name] = my_object.pop(ob_select)
+                        my_object.Add_oneItem(my_object.pop(ob_select))
 
                     c_exit = input("¿Terminamos de editar los items?...").strip()
                     if c_exit in Util.Afirmative:
