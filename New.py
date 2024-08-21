@@ -336,34 +336,35 @@ class ManagerMyObject:
         
 
         if type_ob == "IList":
-            Items_Keys = my_object.diccionary.keys()
             
-            while True:
-                my_object.Show_Items()
-                op_edit = input("Desea editar algun item?...").strip()
-                if op_edit.upper() not in Util.Afirmative:
-                    break#FALTA AGREGAR LA ACTUALIZACION DE ITEMS EN BASE A LA LISTA.
+            op_edit = input("Desea editar items?...").strip()
 
-                ob_select = input("Que item deseas editar...").strip()
+            if op_edit in Util.Afirmative:
+                while True:
+                    my_object.Show_Items()
+                    ob_select = input("Que item deseas editar...").strip()
+                    Items_Keys = my_object.diccionary.keys()
 
-                if ob_select not in Items_Keys:
-                    Util.Clear_Console(lines = 2)
-                    continue
-                
-                ManagerMyObject._InPrss_Edit(my_object[ob_select])
-                new_name = my_object[ob_select].name
-                my_object[new_name] = my_object.pop(ob_select)
+                    if ob_select not in Items_Keys:
+                        conf_ans = input("El elemento no existe, desea agregar nuevos items?...")
+                        if conf_ans in Util.Afirmative:
+                            my_object.Add_Items()
+                    
+                    else:
+                        ManagerMyObject._InPrss_Edit(my_object[ob_select])
+                        new_name = my_object[ob_select].name
+                        my_object[new_name] = my_object.pop(ob_select)
 
-                c_exit = input("¿Terminamos de editar los items?...").strip()
-                if c_exit.upper() in Util.Afirmative:
-                    break
-                os.system('cls')
+                    c_exit = input("¿Terminamos de editar los items?...").strip()
+                    if c_exit in Util.Afirmative:
+                        break
+                    os.system('cls')
 
         elif type_ob == 'Button':
             my_object.Show()
             if my_object._i_list:
                 op_edit = input("Desea editar la lista?...").strip()
-                if op_edit.upper() in Util.Afirmative:
+                if op_edit in Util.Afirmative:
                     ManagerMyObject._InPrss_Edit(my_object._i_list, E_starting = False)
         
         my_object.Show (message = "Valores actualizados")
