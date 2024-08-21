@@ -39,7 +39,7 @@ def Consult_Starting(name:str = 'Elemento') -> Optional[list]:
         
         if consult in ('S', 'SI'):
             str_keyshots = input(f"Escriba el starting de {name}: ").strip()
-            return FinOb.Starting.FilterKeyshort(str_keyshots)
+            return FinOb.Starting.FilterKeyshort(str_keyshots, pack = True)
         
         elif consult in ('N', 'NO'):
             return None

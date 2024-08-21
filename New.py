@@ -300,9 +300,12 @@ class ManagerMyObject:
         return new_object
     
     @staticmethod
-    def _InPrss_Edit(my_object:object):
+    def _InPrss_Edit(my_object:object, E_starting = True):
+
         my_object.Show (message = 'Valores iniciales')
         type_ob = my_object.type_ob
+        if type_ob == 'ListItem':
+            E_starting = False
         
         n_name = input('Ingrese el nuevo nombre: ').strip()
         my_object.name = n_name if n_name else my_object.name
@@ -311,7 +314,7 @@ class ManagerMyObject:
         n_keyshort = FinOb.Starting.FilterKeyshort(n_keyshort)
         my_object.keyshort = n_keyshort if n_keyshort else my_object.keyshort
         
-        if type_ob != 'ListItem':
+        if E_starting:
             n_starting = input('Ingrese el nuevo starting: ').strip()
             n_starting = FinOb.Starting.FilterKeyshort(n_starting, pack = True)
             my_object.starting = n_starting if n_starting else my_object.starting[:-1]
@@ -340,7 +343,13 @@ class ManagerMyObject:
                 if c_exit.upper() in Util.Afirmative:
                     break
                 os.system('cls')
-                
+
+        elif type_ob == 'Button':
+            my_object.Show()
+            if my_object._i_list:
+                op_edit = input("Desea editar la lista?...").strip()
+                if op_edit.upper() in Util.Afirmative:
+                    ManagerMyObject._InPrss_Edit(my_object._i_list, E_starting = False)
         
         my_object.Show (message = "Valores actualizados")
     

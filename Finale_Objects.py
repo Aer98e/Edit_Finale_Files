@@ -186,12 +186,15 @@ class BasicElement(ABC):
         else:
             print("ACCESO DENEGADO.")
 
-    def _Update_Starting(self, key:bool) -> None:
+    def _Update_Starting_Basic(self, key:bool) -> None:
         if key and len(self._starting) > 0:
             del self._starting[-1]
         Starting.Add_Instruction(self._keyshort, self._starting)
     
-    
+    @abstractmethod
+    def _Update_Starting(self, key:bool):
+       pass
+
     def Show_Basic(self, message = ''):
         description = f'\n**{message.upper()}**' if message else ''
         print(description)
@@ -202,8 +205,9 @@ class BasicElement(ABC):
         print(f'starting: {self.starting}')
         print("______________________________\n")
     
+    @abstractmethod
     def Show(self, message = ''):
-        self.Show_Basic(message=message)
+        pass
 
     def Open(self) -> None:
         """
@@ -263,6 +267,12 @@ class ListItem(BasicElement):
     def __init__(self, name:str, keyshort:Union[str, tuple[str, str]], starting_base:list = None) -> None:
         BasicElement.__init__(self, name, keyshort, starting_base, 'ListItem')
         self.Show()
+
+    def _Update_Starting(self, key: bool):
+        self._Update_Starting_Basic(key = key)
+    
+    def Show(self, message=''):
+        self.Show_Basic(message = message)
 
 class IList(BasicElement, BasicDictionary):
     """Clase que representa una lista de Items, funciona como un diccionario.
@@ -363,7 +373,7 @@ class IList(BasicElement, BasicDictionary):
 
 #     def Write_Text(self, text:str) -> None:
 #         pyautogui.write(text)
-    
+
 
 class Button(BasicElement):
     """Clase que representa un Boton.
@@ -422,3 +432,8 @@ class Button(BasicElement):
         self.Show_Basic(message=message)
         if self._i_list:
             self._i_list.Show()
+
+    def _Update_Starting(self, key: bool):
+        self._Update_Starting_Basic(key = key)
+        if self._i_list:
+            self._i_list.starting = self.starting
