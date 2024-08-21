@@ -5,8 +5,8 @@ import Finale_Objects as FinOb
 import sys
 
 
-Afirmative = ('SI', 'S', 'Y', 'YES', '1')
-Negative = ('NO', 'N', '0')
+Afirmative = ('SI', 'S', 'Y', 'YES', '1','si', 's', 'y', 'yes')
+Negative = ('NO', 'N', '0', 'no', 'n')
 
 def Consult_Data(peticion:str = 'Elemento') -> tuple[str, Union[str, tuple]]:
         """Solicita un nombre y un atajo de teclado que los retorna al terminar.
