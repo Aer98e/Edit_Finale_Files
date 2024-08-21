@@ -155,7 +155,7 @@ class BasicElement(ABC):
     @keyshort.setter
     def keyshort(self, new_keyshort):
         if Starting.IsKeyshort(new_keyshort):
-            self._keyshort = Starting.FilterKeyshort(new_keyshort)
+            self._keyshort = new_keyshort
             self._Update_Starting(key = True)
         else:
             raise TypeError("keyshort_name debe ser de tipo string o tupla.")
@@ -167,7 +167,7 @@ class BasicElement(ABC):
         if Starting.IsKeyshortList(new_starting):
             self._starting  = [element for element in new_starting]
             
-            if self._starting == ['0']:
+            if self._starting == ['0']: #0 es un comodin para reiniciar el starting. 
                 key = True
             
             self._Update_Starting(key = key)
@@ -187,7 +187,7 @@ class BasicElement(ABC):
             print("ACCESO DENEGADO.")
 
     def _Update_Starting(self, key:bool) -> None:
-        if key and len(self._starting) > 0:
+        if key: #if key and len(self._starting) > 0:
             del self._starting[-1]
         Starting.Add_Instruction(self._keyshort, self._starting)
     
