@@ -1,5 +1,5 @@
 import pyautogui
-from typing import Literal, Callable, Union, Tuple, Dict
+from typing import Literal, Callable, Union, Optional
 import inspect
 import time
 import Utilities as Util
@@ -241,6 +241,9 @@ class BasicDictionary:
         if isinstance(name, str):
             return self._diccionary.pop(name)
     
+    def keys(self):
+        return self._diccionary.keys()
+
     @property
     def diccionary(self):
         return self._diccionary.copy()
@@ -264,7 +267,7 @@ class ListItem(BasicElement):
         Open(): Ejecuta "starting", para seleccionar este item.
     """
 
-    def __init__(self, name:str, keyshort:Union[str, tuple[str, str]], starting_base:list = None) -> None:
+    def __init__(self, name:str, keyshort:Union[str, tuple[str, str]], starting_base:list = None, init = None) -> None:
         BasicElement.__init__(self, name, keyshort, starting_base, 'ListItem')
         self.Show()
 
@@ -286,7 +289,7 @@ class IList(BasicElement, BasicDictionary):
         Open(): Ejecuta "starting", para seleccionar este item.
 
     """
-    def __init__(self, name_l:str, keyshort_l:Union[str, tuple[str, str]], starting_l:list = None) -> None:
+    def __init__(self, name_l:str, keyshort_l:Union[str, tuple[str, str]], starting_l:list = None, init = True) -> None:
         """Construccton de la clase IList.
 
             Args:
@@ -298,7 +301,8 @@ class IList(BasicElement, BasicDictionary):
         BasicElement.__init__(self, name_l, keyshort_l, starting_l, 'IList')
         BasicDictionary.__init__(self)
         self.Show()
-    
+        if init:
+            self.Add_Items()
 
     def Add_oneItem(self, element:object):
         while element.name in self.diccionary.keys():
@@ -309,6 +313,11 @@ class IList(BasicElement, BasicDictionary):
 
         self._diccionary[element.name] = element
 
+    def QAdd_Items(self):
+        ans = input('¿Agregar items?: ')
+        if ans in Util.Afirmative:
+            self.Add_Items()
+    
     def Add_Items(self) -> None:
         """Se encarga de cargar elementos a la lista.
         """
@@ -322,7 +331,6 @@ class IList(BasicElement, BasicDictionary):
             if type_item == 'LISTA':
                 name, keyshort = Util.Consult_Data(peticion = "Lista")
                 element = IList(name, keyshort, self.starting)
-                element.Add_Items()
             
             elif type_item == 'ITEM':
                 name, keyshort = Util.Consult_Data(peticion = "Item")
@@ -350,40 +358,9 @@ class IList(BasicElement, BasicDictionary):
             self.Show_Items()
 
     def _Update_Starting(self, key: bool) -> None:
-        if key:
-            del self._starting[-1]
-        Starting.Add_Instruction(self._keyshort, self._starting)
-
+        self._Update_Starting_Basic(key = key)
         for key in self.diccionary.keys():
             self.diccionary[key].starting = self.starting
-
-# class C_Window:
-#     def __init__(self, win_name, method_open:Callable[[], None] ,method_close:Literal['saved', 'close']) -> None:
-#         self._name = win_name
-#         self._open = method_open
-#         self._close = method_close
-#         self._dictButtons:dict[str, Button] = {}
-
-#     def Open_Window(self):
-#         self._open()
-
-#     def Close_Window(self) -> None:
-#         if self._close == 'saved':
-#             pyautogui.press('enter')
-#         elif self._close == 'close':
-#             pyautogui.hotkey('alt','f4')
-    
-#     def Add_Button(self, name_button:str, coordinates:tuple[int, int], keyshort:Union[str, tuple[str, str]]) -> None:
-#         button = Button(name_button, coordinates)
-#         button.Change_KeyShort(keyshort)
-#         self._dictButtons[name_button] = button
-
-#     def Press_Button(self, name_button:str):
-#         self._dictButtons[name_button].Press()
-
-#     def Write_Text(self, text:str) -> None:
-#         pyautogui.write(text)
-
 
 class Button(BasicElement):
     """Clase que representa un Boton.
@@ -398,7 +375,7 @@ class Button(BasicElement):
         Open(): Ejecuta "starting", para seleccionar este botón.
 
     """
-    def __init__(self, name:str, keyshort:Union[str, tuple], starting:list = None) -> None:
+    def __init__(self, name:str, keyshort:Union[str, tuple], starting:list = None, init = False) -> None:
         BasicElement.__init__(self, name, keyshort, starting, 'Button')
         """Constructor de la clase Button.
 
@@ -410,6 +387,8 @@ class Button(BasicElement):
         self._coordinates: tuple[int, int] = None
         self._i_list:IList = None
         self.Show()
+        if init:
+            self.Add_IList()
 
     @property
     def coordinates(self):
@@ -425,10 +404,14 @@ class Button(BasicElement):
         else:
             raise TypeError(f'{new_coordinates}, no es un argumento valido')
 
+    def QAdd_IList(self):
+        ans = input('¿Agregar lista?: ')
+        if ans in Util.Afirmative:
+            self.Add_IList()
+    
     def Add_IList(self):
         name, keyshort = Util.Consult_Data('Nueva Lista')
         self._i_list = IList(name, keyshort, self.starting)
-        self._i_list.Add_Items()
 
     def Press(self) ->  None:
         """Click el boton."""
@@ -447,3 +430,109 @@ class Button(BasicElement):
         self._Update_Starting_Basic(key = key)
         if self._i_list:
             self._i_list.starting = self.starting
+
+
+class C_Window(BasicElement):
+    def __init__(self, name: str, keyshort: str | tuple, starting: Optional[list] = None, init = True) -> None:
+        super().__init__(name, keyshort, starting, type_ob = 'C_Window')
+        self._Buttons = {}
+        self._ILists = {}
+
+        self.Show()
+        if init:
+            self.Initialization_IList()
+            self.Initialization_Button()
+
+    @property
+    def Buttons(self):
+        return self._Buttons.copy()
+    @property
+    def ILists(self):
+        return self._Buttons.copy()
+    
+    @Buttons.setter
+    def Buttons(self, new_buttons:dict):
+        self._set_dict('_Buttons', new_buttons)
+
+    @ILists.setter
+    def ILists(self, new_ILists:dict):
+        self._set_dict('_ILists', new_ILists)
+        
+    def _set_dict(self, attr_name:str, new_dict:dict):
+        if isinstance(new_dict, dict):
+            setattr(self, attr_name, new_dict.copy())
+        
+        else:
+            raise TypeError('El nuevo diccionario no es de un tipo valido.')
+    
+    def Add_oneItem(self, element:object):
+        type_ob = element.type_ob
+
+        def Change_Name():
+            consult = input("Ya existe un elemento con este nombre, ¿desea sobre escribirlo? (sí/no): ").strip()
+            if consult in Util.Negative:
+                new_name = input("Ingrese el nuevo nombre: ").strip()
+                element.name = new_name
+        
+        valid_type_ob = {'Button':self._Buttons, 'IList':self._ILists}
+
+        if type_ob in valid_type_ob:
+            while element.name in valid_type_ob[type_ob].keys():
+                Change_Name()
+            valid_type_ob[type_ob][element.name] = element
+
+    def _New_Element(self, type_ob:str, class_ob:type):
+        name, keyshort = Util.Consult_Data(type_ob)
+        element = class_ob(name, keyshort, self.starting)
+        self.Add_oneItem(element)
+    
+    def New_Button(self):
+        self._New_Element('Nuevo Botón', Button)
+
+    def New_IList(self):
+        self._New_Element('Nueva Lista', IList)
+
+    def _Initialization(self, type_ob:str, generator:Callable):
+        ans = input(f'¿Desea agregar un {type_ob}? (sí/no):').strip()
+        
+        while ans in Util.Afirmative:
+            generator()
+            ans = input(f"¿Agregar más {type_ob}? (sí/no):").strip()
+            print()
+
+    def Initialization_Button(self):
+        self._Initialization('Button', self.New_Button)
+
+    def Initialization_IList(self):
+        self._Initialization('IList', self.New_IList)
+
+    @staticmethod
+    def Show_Items(diccionary:dict, name:str):
+        print(f"====**{name.upper()}**====")
+        for i, key in enumerate(diccionary.keys(), 1):
+            print(f"{i}) {key}.")
+        print()
+    
+    def Show_Buttons(self):
+        C_Window.Show_Items(self.Buttons, 'Buttons')
+
+    def Show_ILists(self):
+        C_Window.Show_Items(self.ILists, 'ILists')
+
+    def Show(self, message=''):
+        self.Show_Basic(message = message)
+        if self.Buttons:
+            self.Show_Buttons()
+        if self.ILists:
+            self.Show_ILists()
+
+    def _Update_Starting(self, key: bool):
+        self._Update_Starting_Basic(key = key)
+        
+        for button in self.Buttons.values():
+            button.starting = self.starting
+        
+        for ilist in self.ILists.values():
+            ilist.starting = self.starting
+
+
