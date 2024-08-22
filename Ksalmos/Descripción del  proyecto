@@ -1,0 +1,4 @@
+Este proyecto aplica técnicas de procesamiento de lenguaje natural (NLP) y el algoritmo de clustering K-means a los textos de los Salmos. 
+Comienza con una limpieza y preprocesamiento exhaustivo del texto, incluyendo lematización y vectorización usando TF-IDF. 
+Luego, utiliza K-means para agrupar los Salmos en diferentes clusters basados en sus características semánticas, lo que permite identificar patrones y similitudes en el contenido de los textos.
+
