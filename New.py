@@ -52,7 +52,7 @@ class ObjectFinder:
         return os.path.splitext(file_name)[0]
     
     @staticmethod
-    def Clear_FileName(file:str): 
+    def Clear_FileName(file:str, type_ob:str): 
         """Limpia el nombre de un archivo de my_object.
 
         Los objetos guardados tienen un nombre: '[TYPE OBJECT]_[NAME OBJECT]'
@@ -64,8 +64,8 @@ class ObjectFinder:
         Return:
             Un str con el nombre del objeto del archivo.
         """
-
-        return file.split('_')[1].strip()
+        # return file.split('_')[1].strip()
+        return file.replace(f'{type_ob}_', '')
     
     @staticmethod
     def Show_ObjectsSaved(path:str, type_ob:Literal['IList', 'Button']):
@@ -84,7 +84,7 @@ class ObjectFinder:
             raise ValueError(f"No se encontro ningun archivo de tipo {type_ob}")
         lista_ob = list(map(ObjectFinder.Clear_FilePath, lista_ob))
         lista_ob = list(map(ObjectFinder.Remove_FileExtension, lista_ob))
-        lista_ob = list(map(lambda file: ObjectFinder.Clear_FileName(file), lista_ob))
+        lista_ob = list(map(lambda file: ObjectFinder.Clear_FileName(file, type_ob), lista_ob))
         
         for num, name in enumerate(lista_ob, 1):
             print(f'{num}) {name}')
@@ -162,8 +162,8 @@ def Saved_MyObject(myobject:object, path:str) -> None:
     os.chdir(current_path)
 
 class ManagerMyObject:
-    def __init__(self, type_ob: Literal['IList', 'Button']) -> None:
-        if type_ob not in ('IList', 'Button', 'ListItem'):
+    def __init__(self, type_ob: Literal['IList', 'Button', 'ListItem', 'C_Window']) -> None:
+        if type_ob not in ('IList', 'Button', 'ListItem', 'C_Window'):
             raise ValueError(f"No se admite {type_ob}, como objeto valido.")
         self.type_ob = type_ob
 
@@ -238,7 +238,7 @@ class ManagerMyObject:
 
     @staticmethod
     def _InPrss_Create(type_ob:str, name:str, keyshort:Union[str, tuple], starting:list, complete = True) -> object:
-        my_object = FinOb.__dict__[type_ob](name, keyshort, starting)
+        my_object = FinOb.__dict__[type_ob](name, keyshort, starting, init = False)
         
         if not complete:
             return my_object
@@ -247,13 +247,15 @@ class ManagerMyObject:
             pass
         
         elif type_ob == 'IList':
-            my_object.Add_Items()
+            my_object.QAdd_Items()
             
-        elif type_ob == 'Button':            
-            option = input('Agregar lista(si, no): ').strip()
-            if option.upper() == 'SI':
-                my_object.Add_IList()
+        elif type_ob == 'Button':           
+            my_object.QAdd_IList()
         
+        elif type_ob == "C_Window":
+            my_object.Initialization_IList()
+            my_object.Initialization_Button()
+
         return my_object
     
     @staticmethod
@@ -360,11 +362,49 @@ class ManagerMyObject:
                     os.system('cls')
 
         elif type_ob == 'Button':
-            my_object.Show()
             if my_object._i_list:
                 op_edit = input("Desea editar la lista?...").strip()
                 if op_edit in Util.Afirmative:
                     ManagerMyObject._InPrss_Edit(my_object._i_list, E_starting = False)
+
+        elif type_ob == "C_Window":
+            c_edit = input("Desea editar Buttons").strip()
+            if c_edit in Util.Afirmative:
+                while True:
+                    my_object.Show_Buttons()
+                    ob_select = input("Que Button deseas editar...").strip()
+                    Items_Keys = my_object.Buttons.keys()
+
+                    if ob_select not in Items_Keys:
+                        ans = input("El elemento no existe, desea agregar nuevos buttons?...")
+                        if ans in Util.Afirmative:
+                            my_object.New_Button()
+                    else:
+                        ManagerMyObject._InPrss_Edit(my_object.Buttons[ob_select], E_starting = False)
+                        my_object.Add_oneItem(my_object.Buttons.pop(ob_select))
+
+                    c_exit = input("¿Terminamos de editar los buttons?...").strip()
+                    if c_exit in Util.Afirmative:
+                        break
+                    os.system('cls')
+
+                while True:
+                    my_object.Show_ILists()
+                    ob_select = input("Que IList deseas editar...").strip()
+                    Items_Keys = my_object.ILists.keys()
+
+                    if ob_select not in Items_Keys:
+                        ans = input("El elemento no existe, desea agregar nuevos ilists?...")
+                        if ans in Util.Afirmative:
+                            my_object.New_IList()
+                    else:
+                        ManagerMyObject._InPrss_Edit(my_object.ILists[ob_select], E_starting = False)
+                        my_object.Add_oneItem(my_object.ILists.pop(ob_select))
+
+                    c_exit = input("¿Terminamos de editar los ilists?...").strip()
+                    if c_exit in Util.Afirmative:
+                        break
+                    os.system('cls')
         
         my_object.Show (message = "Valores actualizados")
     
